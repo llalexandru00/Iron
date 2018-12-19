@@ -1,5 +1,7 @@
 .c=2;
 .b=3;
+.stdSize = {70, 50};
+.defSize = {0, 0};
 
 .getCaption()
 {
@@ -11,8 +13,19 @@
     print(c);
 }
 
+#MyButton(stdSize;)
+{
+    Button b({100%, 100%}; ^1);
+}
+
+#MyPanel(defSize;)
+{
+    MyButton b1(defSize; $3 = ^3 - {5, 5});
+    MyButton b2(defSize; $2 = b1[1] - {5, 0});
+}
+
 main({400, 400};)
 {
+    $caption="Hello World!";
     MyPanel pnl({100%, 30%}; $4=^4);
-    $caption=10;
 }
