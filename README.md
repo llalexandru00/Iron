@@ -1,5 +1,18 @@
 # Iron
 
+This programming language writen in YACC will tackle the problematic of front-end definition. It is a general easy to use language, which at some scale can target specific technologies to deploy code to generate an interface. The uses are numerous, as in one programming language, one can target more platforms at once, without the need of handling syntactical different front-end layouts. 
+
+# In progress
+
+Some of the things mantioned are still at a prototype stage, and some features aren't yet mentioned. At the syntax extend, it is defined, but for semantics there is still pleanty of work until an working version.
+
+# Working
+
+  - main function generates a window with the use of gtk (working only in linux) with a predifined size and caption
+  - print function along integer expressions and change of environment from function to function.
+
+# How to use
+
 In in.in there is an example of code interpreted by this language. At first we defined some constants b, c, stdSize and defSize. All "global variables" are in fact constants and are defined with a '.' in front. We can already see 2 types of primitives: int and tuple.
 
 Secondly we defined 2 functions. Inside functions we can use statements like assignments, if structures or loop structures. Also we have access to a print function.
