@@ -1,0 +1,18 @@
+.c=2;
+.b=3;
+
+.getCaption()
+{
+    c=2+3*3;
+}
+
+.getCaption()
+{
+    print(c);
+}
+
+main({400, 400};)
+{
+    MyPanel pnl({100%, 30%}; $4=^4);
+    $caption=10;
+}
