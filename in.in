@@ -5,10 +5,16 @@
 
 .getCaption()
 {
-    c=2+3*3;
+    if (1)
+        c=2+3*3;
+    fi
+
+    loop(1)
+        x=1;
+    pool
 }
 
-.getCaption()
+.printC()
 {
     print(c);
 }
