@@ -6,10 +6,15 @@ This programming language writen in YACC will tackle the problematic of front-en
 
 Some of the things mantioned are still at a prototype stage, and some features aren't yet mentioned. At the syntax extend, it is defined, but for semantics there is still pleanty of work until an working version.
 
+  - migrate to bison++ so that the semantics will be more intuitive
+  - resolve a bug where in expressions we can't use expressions with a variable as left operand
+
 # Working
 
   - main function generates a window with the use of gtk (working only in linux) with a predifined size and caption
-  - print function along integer expressions and change of environment from function to function.
+  - print identifiers and whole scopes
+  - use of integer expressions and change of environment from function to function
+  - constants are uniquely defined, error on duplicates
 
 # How to use
 
