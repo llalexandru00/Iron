@@ -1,7 +1,11 @@
 %{
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h> 
 #include "y.tab.h"
 %}
+
+%option yylineno
 
 %%
 "int"|"float"|"char"|"string" {return TIP;}
@@ -25,6 +29,7 @@
 ":=" {return ASSIGN;}
 [0-9]+\% {return PROCENT;}
 [0-9]+ {yylval.intval=atoi(yytext); return NR;}
+[ \n] {}
 [ \t] ;
 . {return yytext[0];}
 
