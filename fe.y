@@ -4,7 +4,6 @@
 #include <stdlib.h>
 extern FILE* yyin;
 extern char* yytext;
-extern int yylineno;
 
 extern void createWindow();
 extern void applyProperty();
@@ -194,7 +193,7 @@ param_list_oncall: expression
 
 %%
 int yyerror(char * s){
-printf("eroare: %s la linia:%d\n",s,yylineno);
+printf("eroare: %s la linia:0\n",s);
 }
 
 int main(int argc, char** argv){

@@ -26,7 +26,6 @@
 [0-9]+\% {return PROCENT;}
 [0-9]+ {yylval.intval=atoi(yytext); return NR;}
 [ \t] ;
-\n {yylineno++;}
 . {return yytext[0];}
 
  
