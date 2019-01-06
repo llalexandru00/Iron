@@ -14,10 +14,10 @@ This programming language writen in YACC will tackle the problematic of front-en
 Some of the things mantioned are still at a prototype stage, and some features aren't yet mentioned. At the syntax extend, it is defined, but for semantics there is still pleanty of work until an working version.
 
   - convert structs to classes for easier use (overwrite operators if needed)
-  - add stl classes to help memory control
+  - add stl classes to help memory control  -  added memory control and a new system for storing globals
   - simplify grammar
 
-# Working
+# Features
 
   - main function generates a window with the use of gtk (working only in linux) with a predifined size and caption
   - print identifiers and whole scopes
