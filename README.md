@@ -2,12 +2,20 @@
 
 This programming language writen in YACC will tackle the problematic of front-end definition. It is a general easy to use language, which at some scale can target specific technologies to deploy code to generate an interface. The uses are numerous, as in one programming language, one can target more platforms at once, without the need of handling syntactical different front-end layouts. 
 
+  
+# Goal = Expressions
+  
+  - finish basic expressions inside functions
+  - increase readability of code (modularize, document)
+  - *automatic testing with custom samples
+
 # In progress
 
 Some of the things mantioned are still at a prototype stage, and some features aren't yet mentioned. At the syntax extend, it is defined, but for semantics there is still pleanty of work until an working version.
 
-  - migrate to bison++ so that the semantics will be more intuitive
-  - resolve a bug where in expressions we can't use expressions with a variable as left operand
+  - convert structs to classes for easier use (overwrite operators if needed)
+  - add stl classes to help memory control
+  - simplify grammar
 
 # Working
 
