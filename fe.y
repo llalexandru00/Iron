@@ -1,8 +1,13 @@
 %{
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include "father.h"
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+#include <stack>
+#include <map>
+#include <vector>
+#include "mem/MemoryControl.h"
+#include <utility>
+#include <iostream>
 
 extern FILE* yyin;
 extern char* yytext;
@@ -10,6 +15,8 @@ extern int yylineno;
 
 void yyerror(char * s);
 int yylex(void);
+
+MemoryControl* memory;
 
 struct environment{
      char *identifiers[256];
@@ -19,6 +26,7 @@ struct environment{
 struct environment* envs[256];
 struct environment* last_env;
 struct environment* consts;
+
 int envnr;
 
 void enterEnv()
@@ -36,7 +44,7 @@ void exitEnv()
           last_env = envs[envnr-1];
 }
 struct window{
-     struct tuple *size;
+     struct Point *size;
      char* caption;
 };
 struct component{
@@ -68,7 +76,7 @@ void exitComp()
 
 extern void createWindow(struct window *win);
 extern void applyProperty(char* p, struct component* last, char* value);
-extern int assign(char* identifier, tuple* value, struct environment* env, int overwrite);
+extern int assign(char* identifier, Point* value, struct environment* env, int overwrite);
 extern int getById(char* identifier, struct environment* env, struct environment* consts);
 extern void printEnv(struct environment* env);
 extern void debug();
@@ -77,8 +85,8 @@ extern void debug();
 
 %union {
      int intval;
-     class tuple *tupleval;
      char* strval;
+     class Point* pval;
 }
 
 %token TIP BGIN END ASSIGN PROCENT POINT MAIN RETURN LOOP POOL IF FI FOR ROF IN ELSE PRINT
@@ -87,9 +95,9 @@ extern void debug();
 %token <strval> PROPERTY
 %token <strval> STRING
 %token <strval> ID
-%type <tupleval> expression
-%type <tupleval> tup
-%type <tupleval> position
+%type <pval> expression
+%type <pval> Point
+%type <pval> position
 
 %start progr
 %left '+' '-'
@@ -104,14 +112,18 @@ multiple_define: define
                | define multiple_define
                ;
 
-define: '.' ID '=' expression ';' {if (!assign($2, $4, consts, 0)) printf("Nu s-a putut asigna la identificatorul %s: exista deja o constanta cu acelasi nume\n", $2);}
+define: '.' ID '=' expression ';' {
+          //if (!assign($2, $4, consts, 0)) printf("Nu s-a putut asigna la identificatorul %s: exista deja o constanta cu acelasi nume\n", $2);
+          if (memory->defineConstant(string($2), $4) == false)
+               std::cout<<"Nu s-a putut asigna la identificatorul "<< $2 <<": exista deja o constanta cu acelasi nume\n"
+     }
       | '.' ID '=' STRING ';'
       | function_decl
       | '#' ID '(' expression ';' ')' content
 ;
 
 function_decl: 
-      '.' ID '(' ')' {enterEnv();} '{' stmt_sequence '}' {printf("In functia %s am avut:\n", $2); printEnv(last_env); printf("Din care globale:\n"); printEnv(consts); exitEnv();}
+      '.' ID '(' ')' {enterEnv();} '{' stmt_sequence '}' {printf("In functia %s am avut:\n", $2); printEnv(last_env); printf("Din care globale:\n"); memory->printConstants(); exitEnv();}
       |'.' ID '(' param_list ')' {enterEnv();} '{' stmt_sequence '}' {exitEnv();}
 ;
 
@@ -159,22 +171,22 @@ position: POINT '=' expression
         | expression {$$ = $1;}
         ;
 
-expression: expression '+' expression {tuple& a=*($1); tuple&b=*($3); $$ = a+b;}
-          | expression '-' expression {tuple& a=*($1); tuple&b=*($3); $$ = a-b;}
-          | expression '*' expression {tuple& a=*($1); tuple&b=*($3); $$ = a*b;}
-          | expression '/' expression {tuple& a=*($1); tuple&b=*($3); $$ = a/b;}
+expression: expression '+' expression {Point& a=*($1); Point&b=*($3); $$ = a+b;}
+          | expression '-' expression {Point& a=*($1); Point&b=*($3); $$ = a-b;}
+          | expression '*' expression {Point& a=*($1); Point&b=*($3); $$ = a*b;}
+          | expression '/' expression {Point& a=*($1); Point&b=*($3); $$ = a/b;}
           | '(' expression ')'
-          | ID {$$ = new tuple(getById($1, last_env, consts), 0);}
+          | ID {$$ = new Point(getById($1, last_env, consts), 0);}
           | ID '[' NR ']'
-          | NR {$$ = new tuple($1, 0);}
+          | NR {$$ = new Point($1, 0);}
           | PROCENT
           | ID '(' param_list_oncall ')'
           | ID '(' ')'
-          | tup {struct tuple *ans;  ans=$1; $$ = $1;}
+          | Point {struct Point *ans;  ans=$1; $$ = $1;}
           ;
 
-tup: POINT 
-   | '{' expression ',' expression '}' {struct tuple *ans = (struct tuple *)malloc(sizeof(struct tuple)); ans->x=$2->x; ans->y=$4->x; $$ = ans;}
+Point: POINT 
+   | '{' expression ',' expression '}' {struct Point *ans = (struct Point *)malloc(sizeof(struct Point)); ans->x=$2->x; ans->y=$4->x; $$ = ans;}
    ;
 
 param_list_oncall: expression
@@ -190,6 +202,7 @@ int main(int argc, char** argv){
      yyin=fopen(argv[1],"r");
      struct environment* c = (struct environment *)malloc(sizeof(struct environment));
      consts = c;
+     memory = new MemoryControl();
      enterEnv();
      yyparse();
      exitEnv();

@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <gtk/gtk.h>
-#include "father.h"
+#include <utility>
+#include "helper/Point.h"
 
 struct window{
-     struct tuple *size;
+     struct Point *size;
      char* caption;
 };
 struct component{
@@ -61,7 +62,7 @@ int checkFree(char* identifier, struct environment* env)
     return 1;
 }
 
-int assign(char* identifier, tuple* value, struct environment* env, int overwrite)
+int assign(char* identifier, Point* value, struct environment* env, int overwrite)
 {
     if (overwrite==1)
     {

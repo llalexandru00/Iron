@@ -100,10 +100,15 @@ Maintained by Magnus Ekdahl <magnus@debian.org>
  #line 88 "/usr/share/bison++/bison.cc"
 #line 1 "fe.y"
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include "father.h"
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+#include <stack>
+#include <map>
+#include <vector>
+#include "mem/MemoryControl.h"
+#include <utility>
+#include <iostream>
 
 extern FILE* yyin;
 extern char* yytext;
@@ -111,6 +116,8 @@ extern int yylineno;
 
 void yyerror(char * s);
 int yylex(void);
+
+MemoryControl* memory;
 
 struct environment{
      char *identifiers[256];
@@ -120,6 +127,7 @@ struct environment{
 struct environment* envs[256];
 struct environment* last_env;
 struct environment* consts;
+
 int envnr;
 
 void enterEnv()
@@ -137,7 +145,7 @@ void exitEnv()
           last_env = envs[envnr-1];
 }
 struct window{
-     struct tuple *size;
+     struct Point *size;
      char* caption;
 };
 struct component{
@@ -169,17 +177,17 @@ void exitComp()
 
 extern void createWindow(struct window *win);
 extern void applyProperty(char* p, struct component* last, char* value);
-extern int assign(char* identifier, tuple* value, struct environment* env, int overwrite);
+extern int assign(char* identifier, Point* value, struct environment* env, int overwrite);
 extern int getById(char* identifier, struct environment* env, struct environment* consts);
 extern void printEnv(struct environment* env);
 extern void debug();
 
 
-#line 78 "fe.y"
+#line 86 "fe.y"
 typedef union {
      int intval;
-     class tuple *tupleval;
      char* strval;
+     class Point* pval;
 } yy_parse_stype;
 #define YY_parse_STYPE yy_parse_stype
 #ifndef YY_USE_CLASS
@@ -654,12 +662,12 @@ static const short yyrhs[] = {    41,
 
 #if (YY_parse_DEBUG != 0) || defined(YY_parse_ERROR_VERBOSE) 
 static const short yyrline[] = { 0,
-    99,   100,   103,   104,   107,   108,   109,   110,   113,   114,
-   115,   115,   118,   119,   122,   123,   124,   125,   126,   127,
-   128,   129,   130,   131,   134,   135,   138,   138,   141,   142,
-   143,   146,   147,   150,   151,   152,   153,   154,   155,   158,
-   159,   162,   163,   164,   165,   166,   167,   168,   169,   170,
-   171,   172,   173,   176,   177,   180,   181
+   107,   108,   111,   112,   115,   120,   121,   122,   125,   126,
+   127,   127,   130,   131,   134,   135,   136,   137,   138,   139,
+   140,   141,   142,   143,   146,   147,   150,   150,   153,   154,
+   155,   158,   159,   162,   163,   164,   165,   166,   167,   170,
+   171,   174,   175,   176,   177,   178,   179,   180,   181,   182,
+   183,   184,   185,   188,   189,   192,   193
 };
 
 static const char * const yytname[] = {   "$","error","$illegal.","TIP","BGIN",
@@ -668,7 +676,7 @@ static const char * const yytname[] = {   "$","error","$illegal.","TIP","BGIN",
 "'.'","'='","';'","'#'","'('","')'","'{'","'}'","'~'","','","'['","']'","progr",
 "multiple_define","define","function_decl","@1","@2","stmt_sequence","stmt",
 "param_list","main_body","@3","content","declaratii","declaratie","position",
-"expression","tup","param_list_oncall",""
+"expression","Point","param_list_oncall",""
 };
 #endif
 
@@ -1296,80 +1304,84 @@ YYLABEL(yyreduce)
   switch (yyn) {
 
 case 5:
-#line 107 "fe.y"
-{if (!assign(yyvsp[-3].strval, yyvsp[-1].tupleval, consts, 0)) printf("Nu s-a putut asigna la identificatorul %s: exista deja o constanta cu acelasi nume\n", yyvsp[-3].strval);;
+#line 115 "fe.y"
+{
+          //if (!assign($2, $4, consts, 0)) printf("Nu s-a putut asigna la identificatorul %s: exista deja o constanta cu acelasi nume\n", $2);
+          if (memory->defineConstant(string(yyvsp[-3].strval), yyvsp[-1].pval) == false)
+               std::cout<<"Nu s-a putut asigna la identificatorul "<< yyvsp[-3].strval <<": exista deja o constanta cu acelasi nume\n"
+     ;
     break;}
 case 9:
-#line 114 "fe.y"
+#line 126 "fe.y"
 {enterEnv();;
     break;}
 case 10:
-#line 114 "fe.y"
-{printf("In functia %s am avut:\n", yyvsp[-6].strval); printEnv(last_env); printf("Din care globale:\n"); printEnv(consts); exitEnv();;
+#line 126 "fe.y"
+{printf("In functia %s am avut:\n", yyvsp[-6].strval); printEnv(last_env); printf("Din care globale:\n"); memory->printConstants(); exitEnv();;
     break;}
 case 11:
-#line 115 "fe.y"
+#line 127 "fe.y"
 {enterEnv();;
     break;}
 case 12:
-#line 115 "fe.y"
+#line 127 "fe.y"
 {exitEnv();;
     break;}
 case 19:
-#line 126 "fe.y"
-{assign(yyvsp[-3].strval, yyvsp[-1].tupleval, last_env, 1);;
+#line 138 "fe.y"
+{assign(yyvsp[-3].strval, yyvsp[-1].pval, last_env, 1);;
     break;}
 case 24:
-#line 131 "fe.y"
-{printf("Am printat: %d\n", yyvsp[-2].tupleval->x);;
+#line 143 "fe.y"
+{printf("Am printat: %d\n", yyvsp[-2].pval->x);;
     break;}
 case 27:
-#line 138 "fe.y"
+#line 150 "fe.y"
 {enterComp("win");;
     break;}
 case 28:
-#line 138 "fe.y"
-{struct window *win = (struct window *)(last_comp->value);win->size=yyvsp[-3].tupleval; createWindow(win); exitComp();;
+#line 150 "fe.y"
+{struct window *win = (struct window *)(last_comp->value);win->size=yyvsp[-3].pval; createWindow(win); exitComp();;
     break;}
 case 39:
-#line 155 "fe.y"
+#line 167 "fe.y"
 {char* prop = (yyvsp[-3].strval)+1; char* value = yyvsp[-1].strval+1; value[strlen(value)-1]=0; applyProperty(prop, last_comp, value);;
     break;}
 case 41:
-#line 159 "fe.y"
-{yyval.tupleval = yyvsp[0].tupleval;;
+#line 171 "fe.y"
+{yyval.pval = yyvsp[0].pval;;
     break;}
 case 42:
-#line 162 "fe.y"
-{tuple& a=*(yyvsp[-2].tupleval); tuple&b=*(yyvsp[0].tupleval); yyval.tupleval = a+b;;
+#line 174 "fe.y"
+{Point& a=*(yyvsp[-2].pval); Point&b=*(yyvsp[0].pval); yyval.pval = a+b;;
     break;}
 case 43:
-#line 163 "fe.y"
-{tuple& a=*(yyvsp[-2].tupleval); tuple&b=*(yyvsp[0].tupleval); yyval.tupleval = a-b;;
+#line 175 "fe.y"
+{Point& a=*(yyvsp[-2].pval); Point&b=*(yyvsp[0].pval); yyval.pval = a-b;;
     break;}
 case 44:
-#line 164 "fe.y"
-{tuple& a=*(yyvsp[-2].tupleval); tuple&b=*(yyvsp[0].tupleval); yyval.tupleval = a*b;;
+#line 176 "fe.y"
+{Point& a=*(yyvsp[-2].pval); Point&b=*(yyvsp[0].pval); yyval.pval = a*b;;
     break;}
 case 45:
-#line 165 "fe.y"
-{tuple& a=*(yyvsp[-2].tupleval); tuple&b=*(yyvsp[0].tupleval); yyval.tupleval = a/b;;
+#line 177 "fe.y"
+{Point& a=*(yyvsp[-2].pval); Point&b=*(yyvsp[0].pval); yyval.pval = a/b;;
     break;}
 case 47:
-#line 167 "fe.y"
-{yyval.tupleval = new tuple(getById(yyvsp[0].strval, last_env, consts), 0);;
+#line 179 "fe.y"
+{yyval.pval = new Point(getById(yyvsp[0].strval, last_env, consts), 0);;
     break;}
 case 49:
-#line 169 "fe.y"
-{yyval.tupleval = new tuple(yyvsp[0].intval, 0);;
+#line 181 "fe.y"
+{yyval.pval = new Point(yyvsp[0].intval, 0);;
     break;}
 case 53:
-#line 173 "fe.y"
-{struct tuple *ans;  ans=yyvsp[0].tupleval; yyval.tupleval = yyvsp[0].tupleval;;
+#line 185 "fe.y"
+{struct Point *ans;  ans=yyvsp[0].pval; yyval.pval = yyvsp[0].pval;;
     break;}
 case 55:
-#line 177 "fe.y"
-{struct tuple *ans = (struct tuple *)malloc(sizeof(struct tuple)); ans->x=yyvsp[-3].tupleval->x; ans->y=yyvsp[-1].tupleval->x; yyval.tupleval = ans;;
+#line 189 "fe.y"
+{struct Point *ans = (struct Point *)malloc(sizeof(struct Point)); ans->x=yyvsp[-3].pval->x; ans->y=yyvsp[-1].pval->x; yyval.pval = ans;;
     break;}
 }
 
@@ -1575,7 +1587,7 @@ YYLABEL(yyerrhandle)
 /* END */
 
  #line 1038 "/usr/share/bison++/bison.cc"
-#line 184 "fe.y"
+#line 196 "fe.y"
 
 void yyerror(char * s){
      printf("eroare: %s la linia:%d\n",s, yylineno);
@@ -1585,6 +1597,7 @@ int main(int argc, char** argv){
      yyin=fopen(argv[1],"r");
      struct environment* c = (struct environment *)malloc(sizeof(struct environment));
      consts = c;
+     memory = new MemoryControl();
      enterEnv();
      yyparse();
      exitEnv();

@@ -13,11 +13,11 @@
 
  #line 8 "/usr/share/bison++/bison.h"
 
-#line 78 "fe.y"
+#line 86 "fe.y"
 typedef union {
      int intval;
-     class tuple *tupleval;
      char* strval;
+     class Point* pval;
 } yy_parse_stype;
 #define YY_parse_STYPE yy_parse_stype
 #ifndef YY_USE_CLASS
