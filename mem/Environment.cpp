@@ -8,18 +8,28 @@ Environment::Environment ()
 {
 
 }
+Environment::~Environment ()
+{
+    for (auto i : env)
+        delete(i.second);
+    env.clear();
+}
 
 bool Environment::has(string name)
 {
     return env.find(name)!=env.end();
 }
 
-bool Environment::define(string name, Point* value)
+Point* Environment::get(string name)
 {
-    if (has(name))
-        return false;
+    if (!has(name))
+        return new Point(0, 0);
+    return env[name];
+}
+
+void Environment::define(string name, Point* value)
+{
     env[name] = value;
-    return true;
 }
 
 void Environment::printAll()

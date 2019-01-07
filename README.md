@@ -5,17 +5,17 @@ This programming language writen in YACC will tackle the problematic of front-en
   
 # Goal = Expressions
   
-  - finish basic expressions inside functions
-  - increase readability of code (modularize, document)
-  - *automatic testing with custom samples
+  - finish basic expressions inside functions  -  testing phase
+  - keep things clean in case of a probable rethinking
+  - documentation
 
 # In progress
 
 Some of the things mantioned are still at a prototype stage, and some features aren't yet mentioned. At the syntax extend, it is defined, but for semantics there is still pleanty of work until an working version.
 
-  - convert structs to classes for easier use (overwrite operators if needed)
-  - add stl classes to help memory control  -  added memory control and a new system for storing globals
-  - simplify grammar
+  - Rethink primitives: there must be only one primitive, the tuple (x, y), which can represent a 4 byte integer(x), an 8 byte long long(xy), or a 
+    double (x/y). Also integrate Strings.
+  - Testing
 
 # Features
 
@@ -23,7 +23,7 @@ Some of the things mantioned are still at a prototype stage, and some features a
   - print identifiers and whole scopes
   - use of integer expressions and change of environment from function to function
   - constants are uniquely defined, error on duplicates
-
+  
 # How to use
 
 In in.in there is an example of code interpreted by this language. At first we defined some constants b, c, stdSize and defSize. All "global variables" are in fact constants and are defined with a '.' in front. We can already see 2 types of primitives: int and tuple.

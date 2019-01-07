@@ -18,31 +18,6 @@ int yylex(void);
 
 MemoryControl* memory;
 
-struct environment{
-     char *identifiers[256];
-     int ints[256];
-     int nrints;
-};
-struct environment* envs[256];
-struct environment* last_env;
-struct environment* consts;
-
-int envnr;
-
-void enterEnv()
-{
-     struct environment* env = (struct environment *)malloc(sizeof(struct environment));
-     envs[envnr++] = env;
-     last_env = env;
-}
-
-void exitEnv()
-{
-     free(envs[envnr]);
-     envnr--;
-     if (envnr>0)
-          last_env = envs[envnr-1];
-}
 struct window{
      struct Point *size;
      char* caption;
@@ -76,10 +51,6 @@ void exitComp()
 
 extern void createWindow(struct window *win);
 extern void applyProperty(char* p, struct component* last, char* value);
-extern int assign(char* identifier, Point* value, struct environment* env, int overwrite);
-extern int getById(char* identifier, struct environment* env, struct environment* consts);
-extern void printEnv(struct environment* env);
-extern void debug();
 
 %}
 
@@ -113,7 +84,6 @@ multiple_define: define
                ;
 
 define: '.' ID '=' expression ';' {
-          //if (!assign($2, $4, consts, 0)) printf("Nu s-a putut asigna la identificatorul %s: exista deja o constanta cu acelasi nume\n", $2);
           if (memory->defineConstant(string($2), $4) == false)
                std::cout<<"Nu s-a putut asigna la identificatorul "<< $2 <<": exista deja o constanta cu acelasi nume\n"
      }
@@ -123,8 +93,8 @@ define: '.' ID '=' expression ';' {
 ;
 
 function_decl: 
-      '.' ID '(' ')' {enterEnv();} '{' stmt_sequence '}' {printf("In functia %s am avut:\n", $2); printEnv(last_env); printf("Din care globale:\n"); memory->printConstants(); exitEnv();}
-      |'.' ID '(' param_list ')' {enterEnv();} '{' stmt_sequence '}' {exitEnv();}
+      '.' ID '(' ')' {memory->enterEnv();} '{' stmt_sequence '}' {printf("In functia %s am avut:\n", $2); memory->printAll(); memory->exitEnv();}
+      |'.' ID '(' param_list ')' {memory->enterEnv();} '{' stmt_sequence '}' {memory->exitEnv();}
 ;
 
 stmt_sequence: stmt
@@ -135,7 +105,7 @@ stmt: IF '(' expression ')' stmt_sequence FI
     | IF '(' expression ')' stmt_sequence ELSE stmt_sequence FI
     | LOOP '(' expression ')' stmt_sequence POOL
     | FOR '(' ID IN expression '~' expression ')' stmt_sequence ROF
-    | ID '=' expression ';' {assign($1, $3, last_env, 1);}
+    | ID '=' expression ';' {memory->assign(string($1), $3);}
     | ID '=' expression ';'
     | RETURN expression ';'
     | RETURN expression ';'
@@ -171,22 +141,23 @@ position: POINT '=' expression
         | expression {$$ = $1;}
         ;
 
-expression: expression '+' expression {Point& a=*($1); Point&b=*($3); $$ = a+b;}
-          | expression '-' expression {Point& a=*($1); Point&b=*($3); $$ = a-b;}
-          | expression '*' expression {Point& a=*($1); Point&b=*($3); $$ = a*b;}
-          | expression '/' expression {Point& a=*($1); Point&b=*($3); $$ = a/b;}
+expression: expression '+' expression {Point& a=*($1); Point& b=*($3); $$ = a+b;}
+          | expression '-' expression {Point& a=*($1); Point& b=*($3); $$ = a-b;}
+          | expression '*' expression {Point& a=*($1); Point& b=*($3); $$ = a*b;}
+          | expression '/' expression {Point& a=*($1); Point& b=*($3); $$ = a/b;}
           | '(' expression ')'
-          | ID {$$ = new Point(getById($1, last_env, consts), 0);}
+          | ID '@' ID {Point *ans = new Point(0, 0);  $$ = ans;}
+          | ID {$$ = memory->get(string($1));}
           | ID '[' NR ']'
           | NR {$$ = new Point($1, 0);}
           | PROCENT
-          | ID '(' param_list_oncall ')'
-          | ID '(' ')'
-          | Point {struct Point *ans;  ans=$1; $$ = $1;}
+          | ID '(' param_list_oncall ')' {Point *ans = new Point(0, 0);  $$ = ans;}
+          | ID '(' ')' {Point *ans = new Point(0, 0);  $$ = ans;}
+          | Point {Point *ans;  ans=$1; $$ = $1;}
           ;
 
 Point: POINT 
-   | '{' expression ',' expression '}' {struct Point *ans = (struct Point *)malloc(sizeof(struct Point)); ans->x=$2->x; ans->y=$4->x; $$ = ans;}
+   | '{' expression ',' expression '}' {$$ = new Point($2->toInt(), $4->toInt());}
    ;
 
 param_list_oncall: expression
@@ -200,10 +171,6 @@ void yyerror(char * s){
 
 int main(int argc, char** argv){
      yyin=fopen(argv[1],"r");
-     struct environment* c = (struct environment *)malloc(sizeof(struct environment));
-     consts = c;
      memory = new MemoryControl();
-     enterEnv();
      yyparse();
-     exitEnv();
 } 

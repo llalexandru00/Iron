@@ -17,11 +17,6 @@ struct environment{
      int nrints;
 };
 
-void debug()
-{
-    printf("ok\n");
-}
-
 static void activate(GtkApplication* app, struct window *win)
 {
     GtkWidget *window;
@@ -52,55 +47,4 @@ void applyProperty(char* p, struct component* last, char* value)
             struct window *win = (struct window *)last->value;
             win->caption=value;
         }
-}
-
-int checkFree(char* identifier, struct environment* env)
-{
-    for (int i=0; i<env->nrints; i++)
-        if (strcmp(identifier, env->identifiers[i])==0)
-            return 0;
-    return 1;
-}
-
-int assign(char* identifier, Point* value, struct environment* env, int overwrite)
-{
-    if (overwrite==1)
-    {
-        for (int i=0; i<env->nrints; i++)
-            if (strcmp(identifier, env->identifiers[i])==0)
-            {
-                env->ints[i] = value->x;
-                return 1;
-            }
-        env->identifiers[env->nrints] = identifier;
-        env->ints[env->nrints++] = value->x;
-        return 1;
-    }
-
-    if(checkFree(identifier, env))
-    {
-        env->identifiers[env->nrints] = identifier;
-        env->ints[env->nrints++] = value->x;
-        return 1;
-    }
-    else
-        return 0;
-}
-
-int getById(char* identifier, struct environment* env, struct environment* consts)
-{
-    for (int i=0; i<env->nrints; i++)
-        if (strcmp(identifier, env->identifiers[i])==0)
-            return env->ints[i];
-
-    for (int i=0; i<consts->nrints; i++)
-        if (strcmp(identifier, consts->identifiers[i])==0)
-            return consts->ints[i];
-    return 0;
-}
-
-void printEnv(struct environment* env)
-{
-    for (int i=0; i<env->nrints; i++)
-        printf("%s -> %d\n", env->identifiers[i], env->ints[i]);
 }
